@@ -5,7 +5,7 @@ namespace Shop.Domain.Entities;
 
 public class Order : BaseAuditableEntity
 {
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
     public User User { get; set; } = null!;
 
     public Address ShippingAddress { get; set; } = null!;
