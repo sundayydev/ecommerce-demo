@@ -1,4 +1,5 @@
-﻿using Shop.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Shop.Domain.Entities;
 
 namespace Shop.Application.Common.Interfaces;
 
@@ -14,5 +15,6 @@ public interface IApplicationDbContext
     DbSet<OrderItem> OrderItems { get; }
     DbSet<CartItem> CartItems { get; }
     DbSet<Payment>  Payments { get; }
+    DatabaseFacade Database { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
