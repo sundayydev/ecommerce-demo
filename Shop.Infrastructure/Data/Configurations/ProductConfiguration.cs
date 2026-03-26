@@ -25,6 +25,14 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         
         builder.Property(x => x.Description)
                .IsRequired();
+        
+        builder.Property(x => x.Price)
+               .IsRequired()
+               .HasColumnType("decimal(18,2)");
+        
+        builder.Property(x => x.IsDeleted)
+               .IsRequired()
+               .HasDefaultValue(false);
 
         builder.HasOne(x => x.Category)
                .WithMany(c => c.Products)

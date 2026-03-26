@@ -6,6 +6,8 @@ public interface IApplicationDbContext
 {
     DbSet<Category> Categories { get; }
     DbSet<Product> Products { get; }
+    DbSet<ProductVariant> ProductVariants { get; }
+    DbSet<ProductImage> ProductImages { get; }
     DbSet<User> Users { get; }
     DbSet<Cart> Carts { get; }
     DbSet<Order> Orders { get; }

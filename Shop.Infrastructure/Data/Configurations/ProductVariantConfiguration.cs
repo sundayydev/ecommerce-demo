@@ -23,11 +23,14 @@ public class ProductVariantConfiguration : IEntityTypeConfiguration<ProductVaria
         builder.Property(x => x.Price)
             .IsRequired()
             .HasColumnType("decimal(18,2)");
+        
+        builder.HasIndex(x => new { x.ProductId, x.Size, x.Color })
+                   .IsUnique()
+                   .HasDatabaseName("IX_ProductVariant_Product_Size_Color");
 
         builder.HasOne(x => x.Product)
             .WithMany(p => p.Variants)
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
-
     }
 }

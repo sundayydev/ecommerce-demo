@@ -1,4 +1,5 @@
 ﻿using Shop.Domain.Common;
+using Shop.Domain.Constants;
 using Shop.Domain.ValueObject;
 
 namespace Shop.Domain.Entities;
@@ -11,7 +12,7 @@ public class Order : BaseAuditableEntity
     public Address ShippingAddress { get; set; } = null!;
     public Decimal TotalAmount { get; set; }
 
-    public string Status { get; set; } = "Pending";
+    public string Status { get; set; } = OrderStatus.Pending;
 
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
 }

@@ -10,6 +10,6 @@ public class ProductVariant : BaseAuditableEntity
     public string Size { get; set; } = null!;
     public string Color { get; set; } = null!;
 
-    public decimal  Price { get; set; }
+    public decimal?  Price { get; set; }
     public int Stock { get; set; }
 }
