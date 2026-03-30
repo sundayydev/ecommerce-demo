@@ -23,46 +23,54 @@ public class ProcessWebhookCommandHandler : IRequestHandler<ProcessWebhookComman
         _context = context;
     }
 
-    public async Task<bool> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
+public async Task<bool> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
+{
+    var match = Regex.Match(request.Content, @"SHOP\s*[a-zA-Z0-9]{8}", RegexOptions.IgnoreCase);
+
+    if (!match.Success)
     {
-
-        var match = Regex.Match(request.Content, @"SHOP\s*[a-zA-Z0-9]{8}", RegexOptions.IgnoreCase);
-
-        if (!match.Success)
-        {
-            return true;
-        }
-
-        var transactionCode = Regex.Replace(match.Value.ToUpper(), @"\s+", "");
-
-        var targetPayment = await _context.Payments
-            .Include(p => p.Order)
-            .FirstOrDefaultAsync(p =>
-                
-                    p.TransactionId != null &&
-                    p.TransactionId.ToUpper().Replace(" ", "") == transactionCode &&
-                    p.Method == "VietQR",
-                cancellationToken);
-        
-
-        // Nếu không tìm thấy, hoặc đơn đã xử lý (Status != Pending) thì bỏ qua
-        if (targetPayment == null || targetPayment.Status != PaymentStatus.Pending) 
-            return false;
-
-        if (request.TransferAmount >= targetPayment.Order.TotalAmount)
-        {
-            targetPayment.Status = PaymentStatus.Success;
-            targetPayment.Order.Status = OrderStatus.Paid; 
-            
-            targetPayment.TransactionId = $"{transactionCode} | Ref: {request.ReferenceCode}";
-        }
-        else 
-        {
-            // Khách chuyển thiếu tiền
-            targetPayment.Status = "PartialPaid";
-        }
-
-        await _context.SaveChangesAsync(cancellationToken);
-        return true;
+        return true; 
     }
-}
+
+    var transactionCode = Regex.Replace(match.Value.ToUpper(), @"\s+", "");
+
+    var targetPayment = await _context.Payments
+        .Include(p => p.Order)
+        .FirstOrDefaultAsync(p =>
+                p.TransactionId != null &&
+                p.TransactionId.ToUpper().Replace(" ", "") == transactionCode &&
+                p.Method == "VietQR",
+            cancellationToken);
+    
+    if (targetPayment == null) 
+        return true; 
+    
+
+    if (targetPayment.Status != PaymentStatus.Pending) 
+        return true; 
+    
+
+    if (request.TransferAmount == targetPayment.Order.TotalAmount)
+    {
+        targetPayment.Status = PaymentStatus.Success;
+        targetPayment.Order.Status = OrderStatus.Paid; 
+    }
+    else if (request.TransferAmount > targetPayment.Order.TotalAmount)
+    {
+        targetPayment.Status = PaymentStatus.OverPaid; 
+        targetPayment.Order.Status = OrderStatus.Paid; 
+        
+        targetPayment.Note = $"Khách chuyển thừa {request.TransferAmount - targetPayment.Order.TotalAmount}đ";
+    }
+    else 
+    {
+        targetPayment.Status = PaymentStatus.PartialPaid;
+        targetPayment.Order.Status = OrderStatus.PartiallyPaid;
+        targetPayment.Note = $"Khách chuyển thiếu {targetPayment.Order.TotalAmount - request.TransferAmount}đ";
+    }
+
+    targetPayment.TransactionId = $"{transactionCode} | Ref: {request.ReferenceCode}";
+
+    await _context.SaveChangesAsync(cancellationToken);
+    return true;
+}}

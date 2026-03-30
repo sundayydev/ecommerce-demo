@@ -9,4 +9,5 @@ public class Payment : BaseAuditableEntity
     public string? TransactionId { get; set; }
     public string Method { get; set; } = null!; 
     public string Status { get; set; } = null!;
+    public string? Note { get; set; }
 }
