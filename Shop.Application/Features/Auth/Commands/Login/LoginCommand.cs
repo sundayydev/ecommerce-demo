@@ -1,62 +1,54 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using System.Net.Mail;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Shop.Application.Common.Interfaces;
-using Shop.Domain.Entities;
-using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
+using Shop.Application.Features.Auth.Commands;
 
-namespace Shop.Application.Features.Auth.Commands;
-public record LoginCommand(string Email, string Password) : IRequest<string>;
-public class LoginCommandHandler : IRequestHandler<LoginCommand, string>
+namespace Shop.Application.Auth.Commands.Login;
+
+public record LoginCommand(string Email, string Password) : IRequest<AuthResponse>;
+
+public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IConfiguration _configuration;
+    private readonly IPasswordHasher _passwordHasher;
+    private readonly ITokenService _tokenService;
+    private readonly IDistributedCache _cache; // Dùng Redis
 
-    public LoginCommandHandler(IApplicationDbContext context, IConfiguration configuration)
+    public LoginCommandHandler(
+        IApplicationDbContext context, 
+        IPasswordHasher passwordHasher, 
+        ITokenService tokenService, 
+        IDistributedCache cache)
     {
         _context = context;
-        _configuration = configuration; 
+        _passwordHasher = passwordHasher;
+        _tokenService = tokenService;
+        _cache = cache;
     }
 
-    public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<AuthResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+        // Tìm User theo Email
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
-        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        if (user == null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
-            throw new Exception("Email hoặc mật khẩu không chính xác."); // Có thể đổi thành UnauthorizedException
+            // Ném lỗi 401 Unauthorized (Lưới bắt lỗi ProblemDetailsExceptionHandler của chúng ta sẽ tự lo phần còn lại)
+            throw new UnauthorizedAccessException("Email hoặc mật khẩu không chính xác.");
         }
 
-        return GenerateJwtToken(user);
-    }
+        var accessToken = _tokenService.CreateAccessToken(user.Id, user.Email, user.Role);
+        var refreshToken = _tokenService.CreateRefreshToken();
 
-    private string GenerateJwtToken(User user)
-    {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-        var secretKey = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
-
-        var claims = new List<Claim>
+        var cacheOptions = new DistributedCacheEntryOptions
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim("FullName", user.FullName),
-            new Claim(ClaimTypes.Role, user.Role) 
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7)
         };
+        await _cache.SetStringAsync($"RefreshToken:{refreshToken}", user.Id.ToString(), cacheOptions, cancellationToken);
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(int.Parse(jwtSettings["ExpiryMinutes"]!)),
-            Issuer = jwtSettings["Issuer"],
-            Audience = jwtSettings["Audience"],
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return tokenHandler.WriteToken(token);
+        return new AuthResponse(user.Id, accessToken, refreshToken);
     }
 }

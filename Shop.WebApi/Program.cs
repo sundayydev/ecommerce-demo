@@ -10,6 +10,7 @@ using Shop.Application.Common.Interfaces;
 using Shop.Application.Features.Categories.Commands.CreateCategory;
 using Shop.Domain.Constants;
 using Shop.Infrastructure.Data;
+using Shop.Infrastructure.Services;
 using Shop.WebApi.Extensions;
 using Shop.WebApi.Services;
 
@@ -73,6 +74,22 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(secretKey)
         };
+        
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                // Móc cái bánh quy "AccessToken" ra và gán vào context
+                var accessToken = context.Request.Cookies["AccessToken"];
+                
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    context.Token = accessToken;
+                }
+                
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -84,9 +101,17 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole(Roles.User));
 });
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["RedisCache:ConnectionString"]; 
+    options.InstanceName = builder.Configuration["RedisCache:InstanceName"];
+});
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 var app = builder.Build();
 
