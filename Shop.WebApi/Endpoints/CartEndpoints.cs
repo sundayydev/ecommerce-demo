@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Shop.Application.Common.Exceptions;
 using Shop.Application.Features.Carts.Commands;
 using Shop.Application.Features.Carts.Commands.AddToCart;
 using Shop.Application.Features.Carts.Commands.UpdateCartItemQuantity;
@@ -40,8 +42,8 @@ public class CartEndpoints : IEndpointGroup
     {
         if (id != command.Id) 
         {
-            throw new FluentValidation.ValidationException(new[] { 
-                new FluentValidation.Results.ValidationFailure("Id", "ID không khớp.") 
+            throw new ValidationException(new[] { 
+                new ValidationFailure("Id", "ID không khớp.") 
             });
         }
 
