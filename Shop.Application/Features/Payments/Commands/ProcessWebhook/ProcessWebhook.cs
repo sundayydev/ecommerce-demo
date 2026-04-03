@@ -17,10 +17,12 @@ public record ProcessWebhookCommand(
 public class ProcessWebhookCommandHandler : IRequestHandler<ProcessWebhookCommand, bool>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IPaymentNotificationService _notificationService; 
 
-    public ProcessWebhookCommandHandler(IApplicationDbContext context)
+    public ProcessWebhookCommandHandler(IApplicationDbContext context, IPaymentNotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
 public async Task<bool> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
@@ -72,5 +74,10 @@ public async Task<bool> Handle(ProcessWebhookCommand request, CancellationToken 
     targetPayment.TransactionId = $"{transactionCode} | Ref: {request.ReferenceCode}";
 
     await _context.SaveChangesAsync(cancellationToken);
+    await _notificationService.SendPaymentSuccessNotificationAsync(
+        targetPayment.OrderId, 
+        request.TransferAmount, 
+        cancellationToken);
+    
     return true;
 }}

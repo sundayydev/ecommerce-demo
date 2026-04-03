@@ -15,6 +15,7 @@ public interface IApplicationDbContext
     DbSet<OrderItem> OrderItems { get; }
     DbSet<CartItem> CartItems { get; }
     DbSet<Payment>  Payments { get; }
+    DbSet<Coupon> Coupons { get; }
     DatabaseFacade Database { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

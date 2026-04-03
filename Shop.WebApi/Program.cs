@@ -112,6 +112,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IPaymentNotificationService, PaymentNotificationService>();
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -142,5 +145,7 @@ app.MapFallbackToFile("index.html");
 
 app.UseAuthentication(); 
 app.UseAuthorization();
+
+app.MapHub<Shop.WebApi.Hubs.PaymentHub>("/payment-hub");
 
 app.Run();
