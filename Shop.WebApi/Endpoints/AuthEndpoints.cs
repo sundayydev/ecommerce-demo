@@ -23,9 +23,9 @@ public class AuthEndpoints : IEndpointGroup
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true, 
-            Secure = false,   // Bắt buộc dùng HTTPS (Khi dev ở localhost có thể để false tạm)
+            Secure = false,   
             SameSite = SameSiteMode.Strict, 
-            Expires = DateTime.UtcNow.AddDays(7) // Sống cùng tuổi thọ với Refresh Token
+            Expires = DateTime.UtcNow.AddDays(7)
         };
 
         httpContext.Response.Cookies.Append("AccessToken", result.AccessToken, cookieOptions);
@@ -40,9 +40,9 @@ public class AuthEndpoints : IEndpointGroup
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true, 
-            Secure = false,   // Bắt buộc dùng HTTPS (Khi dev ở localhost có thể để false tạm)
+            Secure = false,   
             SameSite = SameSiteMode.Strict, 
-            Expires = DateTime.UtcNow.AddDays(7) // Sống cùng tuổi thọ với Refresh Token
+            Expires = DateTime.UtcNow.AddDays(7)
         };
 
         httpContext.Response.Cookies.Append("AccessToken", result.AccessToken, cookieOptions);
@@ -57,7 +57,7 @@ public class AuthEndpoints : IEndpointGroup
 
         if (string.IsNullOrEmpty(refreshToken))
         {
-            return TypedResults.Unauthorized(); // Trả về 401 nếu không có bánh quy
+            return TypedResults.Unauthorized(); 
         }
 
         var result = await sender.Send(new RefreshTokenCommand(refreshToken));

@@ -4,6 +4,7 @@ using Shop.Application.Features.Products.Commands.CreateProduct;
 using Shop.Application.Features.Products.Commands.DeleteProduct;
 using Shop.Application.Features.Products.Commands.UpdateProduct;
 using Shop.Application.Features.Products.Queries;
+using Shop.Application.Features.Reviews.Queries;
 using Shop.Domain.Entities;
 using Shop.WebApi.Extensions;
 
@@ -14,7 +15,6 @@ public class ProductEndpoints : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
-// 1. Nhóm API ai cũng xem được (Không cần đăng nhập)
         groupBuilder.MapGet("/", GetProductsWithPagination)
             .WithSummary("Lấy danh sách sản phẩm (Public)");
                 
@@ -32,6 +32,9 @@ public class ProductEndpoints : IEndpointGroup
         groupBuilder.MapDelete("/{id:guid}", DeleteProduct)
             .WithSummary("Xóa mềm sản phẩm (Admin)")
             .RequireAuthorization("RequireAdminRole");
+        
+        groupBuilder.MapGet("{productId:guid}/review/", GetProductReviews)
+            .WithSummary("Lấy danh sách đánh giá của sản phẩm (có phân trang)");
     }
 
     private static async Task<Ok<PaginatedList<ProductDto>>> GetProductsWithPagination(
@@ -69,5 +72,15 @@ public class ProductEndpoints : IEndpointGroup
         await sender.Send(new DeleteProductCommand(id));
     
         return TypedResults.NoContent();
+    }
+    
+    private static async Task<Ok<ReviewSummaryResponse>> GetProductReviews(
+        ISender sender, 
+        Guid productId, 
+        int pageNumber = 1, 
+        int pageSize = 10)
+    {
+        var result = await sender.Send(new GetProductReviewsQuery(productId, pageNumber, pageSize));
+        return TypedResults.Ok(result);
     }
 }
