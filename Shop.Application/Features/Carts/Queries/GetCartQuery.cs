@@ -33,8 +33,7 @@ public class GetCartQueryHandler : IRequestHandler<GetCartQuery, CartDto>
         
         var itemDtos = cart.Items.Select(i => 
         {
-            // Nếu giá của biến thể có giá trị và lớn hơn 0 -> Lấy giá biến thể
-            // Ngược lại (bằng null hoặc bằng 0) -> Lấy giá gốc của sản phẩm
+
             var price = (i.ProductVariant.Price ?? 0) > 0 
                 ? i.ProductVariant.Price.Value 
                 : i.ProductVariant.Product.Price;
@@ -51,7 +50,7 @@ public class GetCartQueryHandler : IRequestHandler<GetCartQuery, CartDto>
             );
         }).ToList();
 
-        var totalCartPrice = itemDtos.Sum(i => i.TotalPrice); // Tính tổng tiền cả giỏ
+        var totalCartPrice = itemDtos.Sum(i => i.TotalPrice);
 
         return new CartDto(cart.Id, itemDtos, totalCartPrice);
     }

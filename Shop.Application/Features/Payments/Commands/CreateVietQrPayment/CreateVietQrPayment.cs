@@ -11,9 +11,9 @@ namespace Shop.Application.Features.Payments.Commands.CreateVietQrPayment;
 
 public record VietQrResponse(
     Guid PaymentId,
-    string QrUrl,          // Link ảnh QR để hiện lên UI
-    decimal Amount,        // Số tiền
-    string TransferContent // Nội dung chuyển khoản (Để khách xài app bank copy/paste nếu không quét được)
+    string QrUrl,          
+    decimal Amount,       
+    string TransferContent 
 );
 
 public record CreateVietQrPaymentCommand(Guid OrderId) : IRequest<VietQrResponse>;

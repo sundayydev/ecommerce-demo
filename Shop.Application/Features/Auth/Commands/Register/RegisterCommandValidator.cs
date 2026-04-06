@@ -1,7 +1,4 @@
-﻿using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using Shop.Application.Common.Interfaces;
-using Shop.Application.Features.Auth.Commands;
+﻿using Shop.Application.Common.Interfaces;
 
 namespace Shop.Application.Features.Auth.Commands.Register;
 
@@ -19,7 +16,7 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
         RuleFor(v => v.Email)
             .NotEmpty().WithMessage("Email không được để trống.")
-            .EmailAddress().WithMessage("Email không đúng định dạng.") // Tự động check format a@b.com
+            .EmailAddress().WithMessage("Email không đúng định dạng.")
             .MaximumLength(100).WithMessage("Email không được vượt quá 100 ký tự.")
             .MustAsync(BeUniqueEmail).WithMessage("Email '{PropertyValue}' đã được sử dụng. Vui lòng chọn email khác.");
 

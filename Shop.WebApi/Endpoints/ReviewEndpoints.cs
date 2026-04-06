@@ -1,12 +1,7 @@
 ﻿using System.Security.Claims;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Routing;
 using Shop.Application.Features.Reviews.Commands.CreateReview;
-using Shop.Application.Features.Reviews.Queries;
-using Shop.WebApi.Infrastructure;
+
 
 namespace Shop.WebApi.Endpoints;
 

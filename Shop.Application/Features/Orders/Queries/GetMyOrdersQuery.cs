@@ -21,12 +21,12 @@ public class GetMyOrdersQueryHandler : IRequestHandler<GetMyOrdersQuery, List<Or
         var userId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("Cần đăng nhập.");
 
         var orders = await _context.Orders
-            .AsNoTracking() // Dùng AsNoTracking cho API Get để tăng tốc độ (chỉ đọc)
+            .AsNoTracking() 
             .Include(o => o.Items)
                 .ThenInclude(i => i.ProductVariant)
                     .ThenInclude(v => v.Product)
             .Where(o => o.UserId == userId)
-            .OrderByDescending(o => o.Created) // Đơn hàng mới nhất xếp lên đầu
+            .OrderByDescending(o => o.Created) 
             .Select(o => new OrderDto(
                 o.Id,
                 o.Created,

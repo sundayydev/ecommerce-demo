@@ -4,7 +4,7 @@ using Shop.Application.Common.Interfaces;
 using Shop.Domain.Constants;
 using Shop.Domain.Entities;
 
-namespace Shop.Application.Features.Auth.Commands;
+namespace Shop.Application.Features.Auth.Commands.Register;
 
 public record RegisterCommand(string Email, string Password, string FullName) : IRequest<AuthResponse>;
 

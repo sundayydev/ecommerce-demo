@@ -16,12 +16,10 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .IsRequired()
             .HasMaxLength(255);
 
-        // Cấu hình Slug
         builder.Property(x => x.Slug)
             .IsRequired()
             .HasMaxLength(255);
 
-        // Slug của Danh mục cũng phải là duy nhất để truy xuất URL (VD: /danh-muc/thiet-bi-dien-tu)
         builder.HasIndex(c => new { c.ParentId, c.Slug }).IsUnique();
         
         builder.HasOne(x => x.Parent)

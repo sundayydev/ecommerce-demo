@@ -57,10 +57,7 @@ public class CartEndpoints : IEndpointGroup
         return TypedResults.NoContent();
     }
     
-    private static async Task<IResult> ApplyCoupon(
-        ISender sender, 
-        HttpContext context, 
-        [FromBody] ApplyCouponCommand request)
+    private static async Task<IResult> ApplyCoupon(ISender sender, HttpContext context, [FromBody] ApplyCouponCommand request)
     {
         var userIdString = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
                            ?? context.User.FindFirst("UserId")?.Value;

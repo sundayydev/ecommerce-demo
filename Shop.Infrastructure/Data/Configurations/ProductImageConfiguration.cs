@@ -7,7 +7,6 @@ public class ProductImageConfiguration : IEntityTypeConfiguration<ProductImage>
 {
     public void Configure(EntityTypeBuilder<ProductImage> builder)
     {
-        // Tên bảng
         builder.ToTable("ProductImages");
         
         builder.HasKey(x => x.Id);
@@ -16,12 +15,10 @@ public class ProductImageConfiguration : IEntityTypeConfiguration<ProductImage>
             .IsRequired()
             .HasMaxLength(1000);
 
-        // Cấu hình IsMain (Ảnh đại diện)
         builder.Property(x => x.IsMain)
             .IsRequired()
             .HasDefaultValue(false); 
         
-        // N-1: Nhiều Hình ảnh thuộc về 1 Sản phẩm
         builder.HasOne(x => x.Product)
             .WithMany(p => p.Images) 
             .HasForeignKey(x => x.ProductId)

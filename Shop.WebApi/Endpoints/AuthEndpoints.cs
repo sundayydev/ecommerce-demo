@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Shop.Application.Auth.Commands.Login;
 using Shop.Application.Features.Auth.Commands;
+using Shop.Application.Features.Auth.Commands.Login;
 using Shop.Application.Features.Auth.Commands.RefreshToken;
+using Shop.Application.Features.Auth.Commands.Register;
 using Shop.WebApi.Extensions;
 
 namespace Shop.WebApi.Endpoints;

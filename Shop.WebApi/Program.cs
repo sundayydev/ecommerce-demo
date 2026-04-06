@@ -12,6 +12,7 @@ using Shop.Domain.Constants;
 using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Services;
 using Shop.WebApi.Extensions;
+using Shop.WebApi.Hubs;
 using Shop.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +20,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-// Đăng ký DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IApplicationDbContext>(provider => 
@@ -43,7 +43,7 @@ builder.Services.AddMediatR(cfg => {
 
 builder.Services.AddApiVersioning(options =>
 {
-    options.DefaultApiVersion = new ApiVersion(1, 0); // Mặc định là v1.0
+    options.DefaultApiVersion = new ApiVersion(1, 0);
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ApiVersionReader = new UrlSegmentApiVersionReader(); 
 }).AddApiExplorer(options => 
@@ -53,7 +53,6 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true; 
 });
 
-//Đọc cấu hình JwtSettings từ appsettings.json
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
 
@@ -79,7 +78,6 @@ builder.Services.AddAuthentication(options =>
         {
             OnMessageReceived = context =>
             {
-                // Móc cái bánh quy "AccessToken" ra và gán vào context
                 var accessToken = context.Request.Cookies["AccessToken"];
                 
                 if (!string.IsNullOrEmpty(accessToken))
@@ -146,6 +144,6 @@ app.MapFallbackToFile("index.html");
 app.UseAuthentication(); 
 app.UseAuthorization();
 
-app.MapHub<Shop.WebApi.Hubs.PaymentHub>("/payment-hub");
+app.MapHub<PaymentHub>("/payment-hub");
 
 app.Run();

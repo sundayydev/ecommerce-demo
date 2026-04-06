@@ -9,7 +9,6 @@ public class Review : BaseAuditableEntity
     public int Rating { get; set; }
     public string? Comment { get; set; }
 
-    // Navigation properties
     public User User { get; set; } = null!;
     public Product Product { get; set; } = null!;
 }

@@ -1,8 +1,6 @@
-﻿using MediatR;
-using Shop.Application.Common.Interfaces;
+﻿using Shop.Application.Common.Interfaces;
 using Shop.Domain.Entities;
 using Shop.Domain.Helpers;
-using Shop.Domain.Interfaces;
 
 namespace Shop.Application.Features.Categories.Commands.CreateCategory;
 

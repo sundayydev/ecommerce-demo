@@ -1,6 +1,4 @@
-﻿using Shop.Application.Auth.Commands.Login;
-
-namespace Shop.Application.Features.Auth.Commands.Login;
+﻿namespace Shop.Application.Features.Auth.Commands.Login;
 
 public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {

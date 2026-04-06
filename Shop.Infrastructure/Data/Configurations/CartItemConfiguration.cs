@@ -26,7 +26,6 @@ public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
             .HasForeignKey(x => x.ProductVariantId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        //Note: Tránh việc 1 Giỏ hàng có 2 dòng chứa cùng 1 ProductVariant.
         builder.HasIndex(x => new { x.CartId, x.ProductVariantId })
             .IsUnique();
     }

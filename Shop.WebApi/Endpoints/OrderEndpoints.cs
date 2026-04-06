@@ -1,13 +1,7 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Shop.Application.Features.Orders.Commands.Checkout;
-using Shop.Application.Features.Orders.Commands;
 using Shop.Application.Features.Orders.Queries;
 using Shop.WebApi.Extensions;
-using Shop.WebApi.Infrastructure;
 
 namespace Shop.WebApi.Endpoints;
 

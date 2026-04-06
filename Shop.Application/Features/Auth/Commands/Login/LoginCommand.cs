@@ -1,11 +1,7 @@
-﻿using System.Net.Mail;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Distributed;
 using Shop.Application.Common.Interfaces;
-using Shop.Application.Features.Auth.Commands;
 
-namespace Shop.Application.Auth.Commands.Login;
+namespace Shop.Application.Features.Auth.Commands.Login;
 
 public record LoginCommand(string Email, string Password) : IRequest<AuthResponse>;
 
@@ -30,13 +26,11 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
 
     public async Task<AuthResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        // Tìm User theo Email
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
         if (user == null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
-            // Ném lỗi 401 Unauthorized (Lưới bắt lỗi ProblemDetailsExceptionHandler của chúng ta sẽ tự lo phần còn lại)
             throw new UnauthorizedAccessException("Email hoặc mật khẩu không chính xác.");
         }
 

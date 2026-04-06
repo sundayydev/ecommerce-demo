@@ -11,7 +11,7 @@ public class Cart : BaseAuditableEntity
     public decimal DiscountAmount { get; set; }
 
     public decimal SubTotal => Items?
-        .Where(i => i != null && i.ProductVariant != null) // Lọc bỏ Item lỗi
+        .Where(i => true) 
         .Sum(i => 
             (i.ProductVariant.Price ?? i.ProductVariant.Product?.Price ?? 0) * i.Quantity
         ) ?? 0;

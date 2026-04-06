@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using Shop.Application.Common.Interfaces;
-using Shop.Domain.Interfaces;
+﻿using Shop.Application.Common.Interfaces;
 
 namespace Shop.Application.Features.Categories.Commands.CreateCategory;
 

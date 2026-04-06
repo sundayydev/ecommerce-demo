@@ -1,8 +1,5 @@
-﻿using FluentValidation;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Shop.Application.Common.Exceptions; 
-using Shop.Application.Common.Interfaces;
+﻿using Shop.Application.Common.Interfaces;
+using Shop.Domain.Entities;
 using NotFoundException = Ardalis.GuardClauses.NotFoundException;
 using ValidationException = FluentValidation.ValidationException;
 
@@ -32,14 +29,11 @@ public class UpdateCartItemQuantityCommandHandler : IRequestHandler<UpdateCartIt
 
         if (cartItem == null)
         {
-            throw new NotFoundException(nameof(Shop.Domain.Entities.CartItem), request.Id.ToString());
+            throw new NotFoundException(nameof(CartItem), request.Id.ToString());
         }
 
-        // 1. TÍNH TOÁN SỐ LƯỢNG MỚI TRƯỚC
         var newQuantity = cartItem.Quantity + request.Quantity;
-
-        // 2. Kiểm tra số lượng hợp lệ (Bé hơn hoặc bằng 0 thì báo lỗi)
-        // Dùng luôn ValidationException để hệ thống của chúng ta trả về mã 400 Bad Request đẹp mắt
+        
         if (newQuantity <= 0)
         {
              throw new ValidationException(new[] {
@@ -48,7 +42,6 @@ public class UpdateCartItemQuantityCommandHandler : IRequestHandler<UpdateCartIt
             });
         }
 
-        // 3. Kiểm tra tồn kho (Lấy TỔNG SỐ LƯỢNG MỚI so sánh với Tồn kho)
         if (newQuantity > cartItem.ProductVariant.Stock)
         {
             throw new ValidationException(new[] {
@@ -57,7 +50,6 @@ public class UpdateCartItemQuantityCommandHandler : IRequestHandler<UpdateCartIt
             });
         }
 
-        // 4. Gán lại số lượng mới và lưu Database
         cartItem.Quantity = newQuantity;
 
         await _context.SaveChangesAsync(cancellationToken);

@@ -22,7 +22,6 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, Guid>
     {
         var userId = _currentUserService.UserId ?? throw new UnauthorizedAccessException("Cần đăng nhập.");
 
-        // 1. Kéo giỏ hàng lên
         var cart = await _context.Carts
             .Include(c => c.Items)
             .ThenInclude(i => i.ProductVariant)
@@ -38,11 +37,10 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, Guid>
 
         try
         {
-            // 3. KHỞI TẠO ORDER CHUẨN DDD
             var order = new Order
             {
                 UserId = userId,
-                ShippingAddress = shippingAddress, // Gắn Value Object vào đây
+                ShippingAddress = shippingAddress, 
                 Status = OrderStatus.Pending,
                 TotalAmount = 0,
                 Items = new List<OrderItem>()

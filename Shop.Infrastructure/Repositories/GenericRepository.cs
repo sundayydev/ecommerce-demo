@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Shop.Domain.Interfaces;
 using Shop.Infrastructure.Data;
 
@@ -37,6 +36,5 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     public async Task<IEnumerable<T>> GetAllAsync()
     {
         return await _dbSet.ToListAsync();
-        
     }
 }

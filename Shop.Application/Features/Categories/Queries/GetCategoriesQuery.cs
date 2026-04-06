@@ -1,6 +1,4 @@
-﻿using MediatR;
-using Shop.Application.Common.Interfaces;
-using Shop.Domain.Interfaces;
+﻿using Shop.Application.Common.Interfaces;
 
 namespace Shop.Application.Features.Categories.Queries;
 
@@ -14,7 +12,6 @@ public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, Lis
     {
         var categories = await _context.Categories.ToListAsync(cancellationToken);
         
-        // Chuyển đổi từ Entity sang DTO
         return categories.Select(c => new CategoryDto(c.Id, c.Name, c.Slug, c.ParentId)).ToList();
     }
 }

@@ -1,14 +1,13 @@
 ﻿using Shop.Application.Common.Interfaces;
 using Shop.Domain.Helpers;
-using Shop.Domain.Interfaces;
 
 namespace Shop.Application.Features.Categories.Commands.UpdateCategory;
 
 public record UpdateCategoryCommand : IRequest
 {
     public Guid Id { get; init; }
-    public string Name { get; init; }
-    public string Slug { get; init; }
+    public required string Name { get; init; }
+    public required string Slug { get; init; }
 }
 
 public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand>

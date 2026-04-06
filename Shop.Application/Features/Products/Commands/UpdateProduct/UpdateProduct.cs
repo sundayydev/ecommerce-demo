@@ -1,5 +1,4 @@
 ﻿using Shop.Application.Common.Interfaces;
-using Shop.Domain.Entities;
 using Shop.Domain.Helpers;
 
 namespace Shop.Application.Features.Products.Commands.UpdateProduct;
@@ -12,12 +11,12 @@ public record UpdateProductCommand : IRequest
     public string Name 
     { 
         get => _name; 
-        set => _name = value?.Trim() ?? string.Empty; 
+        set => _name = value.Trim(); 
     }
     
-    public string Slug { get; init; }
+    public required string Slug { get; init; }
     
-    public string Description { get; init; }
+    public required string Description { get; init; }
     
     public decimal Price  { get; init; }
         
