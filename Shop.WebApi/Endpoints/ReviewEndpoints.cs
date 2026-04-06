@@ -1,0 +1,56 @@
+﻿using System.Security.Claims;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Routing;
+using Shop.Application.Features.Reviews.Commands.CreateReview;
+using Shop.Application.Features.Reviews.Queries;
+using Shop.WebApi.Infrastructure;
+
+namespace Shop.WebApi.Endpoints;
+
+public class ReviewEndpoints : IEndpointGroup
+{
+    public static void Map(RouteGroupBuilder groupBuilder)
+    {
+        groupBuilder.MapGet("/product/{productId:guid}", GetProductReviews)
+            .WithSummary("Lấy danh sách đánh giá của sản phẩm (có phân trang)");
+
+        groupBuilder.MapPost("/", CreateReview)
+            .WithSummary("Tạo đánh giá mới cho sản phẩm")
+            .RequireAuthorization(); 
+    }
+
+    private static async Task<Ok<ReviewSummaryResponse>> GetProductReviews(
+        ISender sender, 
+        Guid productId, 
+        int pageNumber = 1, 
+        int pageSize = 10)
+    {
+        var result = await sender.Send(new GetProductReviewsQuery(productId, pageNumber, pageSize));
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<Results<Ok<Guid>, UnauthorizedHttpResult>> CreateReview(
+        ISender sender, 
+        HttpContext context, 
+        CreateReviewRequest request)
+    {
+        var userIdString = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                        ?? context.User.FindFirst("UserId")?.Value;
+
+        if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var command = new CreateReviewCommand(userId, request.ProductId, request.Rating, request.Comment);
+        var result = await sender.Send(command);
+        
+        return TypedResults.Ok(result);
+    }
+}
+
+
+public record CreateReviewRequest(Guid ProductId, int Rating, string Comment);
