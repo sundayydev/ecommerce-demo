@@ -61,15 +61,26 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, Guid>
                 variant.Stock -= cartItem.Quantity;
 
                 var price = (variant.Price ?? 0) > 0 ? variant.Price.Value : variant.Product.Price;
-
-                order.TotalAmount += price * cartItem.Quantity;
-
+                
                 order.Items.Add(new OrderItem
                 {
                     ProductVariantId = variant.Id,
                     Quantity = cartItem.Quantity,
                     UnitPrice = price,
                 });
+            }
+
+            order.TotalAmount = cart.FinalTotal;
+            
+            var coupon = await _context.Coupons
+                .FirstOrDefaultAsync(c => c.Code == cart.AppliedCouponCode, cancellationToken);
+
+            if (coupon != null)
+            {
+                if (!coupon.IsValid()) 
+                    throw new ValidationException("Rất tiếc, mã giảm giá này vừa hết lượt sử dụng do có người nhanh tay hơn!");
+
+                coupon.UsedCount += 1;
             }
 
             _context.Orders.Add(order);

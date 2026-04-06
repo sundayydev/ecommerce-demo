@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Shop.Application.Common.Interfaces;
+using Shop.Application.Features.Orders.Events;
 using Shop.Domain.Constants;
 
 namespace Shop.Application.Features.Payments.Commands.ProcessWebhook;
@@ -18,11 +19,13 @@ public class ProcessWebhookCommandHandler : IRequestHandler<ProcessWebhookComman
 {
     private readonly IApplicationDbContext _context;
     private readonly IPaymentNotificationService _notificationService; 
-
-    public ProcessWebhookCommandHandler(IApplicationDbContext context, IPaymentNotificationService notificationService)
+    private readonly IPublisher _publisher;
+    
+    public ProcessWebhookCommandHandler(IApplicationDbContext context, IPaymentNotificationService notificationService, IPublisher publisher)
     {
         _context = context;
         _notificationService = notificationService;
+        _publisher = publisher;
     }
 
 public async Task<bool> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
@@ -55,7 +58,8 @@ public async Task<bool> Handle(ProcessWebhookCommand request, CancellationToken 
     if (request.TransferAmount == targetPayment.Order.TotalAmount)
     {
         targetPayment.Status = PaymentStatus.Success;
-        targetPayment.Order.Status = OrderStatus.Paid; 
+        targetPayment.Order.Status = OrderStatus.Paid;
+        await _publisher.Publish(new OrderCompletedEvent(targetPayment.Order.UserId, targetPayment.Order.TotalAmount), cancellationToken);
     }
     else if (request.TransferAmount > targetPayment.Order.TotalAmount)
     {
