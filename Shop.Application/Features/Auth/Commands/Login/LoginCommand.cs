@@ -10,7 +10,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
     private readonly IApplicationDbContext _context;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ITokenService _tokenService;
-    private readonly IDistributedCache _cache; // Dùng Redis
+    private readonly IDistributedCache _cache; 
 
     public LoginCommandHandler(
         IApplicationDbContext context, 

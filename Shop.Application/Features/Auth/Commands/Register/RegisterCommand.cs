@@ -33,7 +33,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
             Email = request.Email,
             PasswordHash = passwordHash,
             FullName = request.FullName,
-            Role = Roles.User
+            Role = Roles.User,
+            Rank = ""
         };
         
         _context.Users.Add(user);
